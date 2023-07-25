@@ -1,0 +1,114 @@
+import { useState } from "react";
+import {
+	View,
+	Text,
+	ScrollView,
+	StyleSheet,
+	KeyboardAvoidingView,
+	Platform,
+	SafeAreaView,
+} from "react-native";
+
+import Header from "./Header";
+import Button from "./Button";
+import Input from "./Input";
+
+import { isValidEmail } from "../utils/validate";
+import { useSession } from "../state/SessionState";
+
+import { MenuRowItem, MenuRowList } from "./MenuRowList";
+
+const SignUpView = ({ navigation }) => {
+	const [form, setForm] = useState({
+		firstName: "",
+		email: "",
+	});
+
+	const { registerNewUser } = useSession();
+
+	const updateFormState = (key, value) =>
+		setForm((prev) => ({ ...prev, [key]: value }));
+
+	const submitForm = () => {
+		if (!isValidEmail(form.email)) return;
+		if (form.email.length <= 0 || form.firstName.length <= 0) return;
+
+		registerNewUser(form);
+		navigation.navigate("Profile");
+	};
+
+	return (
+		<SafeAreaView style={{ flex: 1 }}>
+			<KeyboardAvoidingView
+				style={{ flex: 1, width: "100%" }}
+				behavior={Platform.OS === "ios" ? "padding" : "height"}
+			>
+				<Header />
+				<ScrollView
+					keyboardDismissMode="interactive"
+					contentContainerStyle={{
+						flexGrow: 1,
+						justifyContent: "flex-end",
+						paddingHorizontal: 20,
+					}}
+				>
+					<Text style={styles.heroText}>Let us get to know you</Text>
+					<MenuRowList>
+						<MenuRowItem
+							underline
+							leftChild={
+								<Input
+									label={"First name"}
+									placeholder={"Type your first name"}
+									autoComplete="given-name"
+									value={form.firstName}
+									onValueChange={(e) =>
+										updateFormState("firstName", e)
+									}
+								/>
+							}
+						/>
+
+						<MenuRowItem
+							leftChild={
+								<Input
+									label={"Email"}
+									placeholder={"Type your email"}
+									keyboardType="email-address"
+									autoComplete="email"
+									value={form.email}
+									onValueChange={(e) =>
+										updateFormState("email", e)
+									}
+								/>
+							}
+						/>
+					</MenuRowList>
+				</ScrollView>
+				<View
+					style={{
+						height: 100,
+						paddingHorizontal: 20,
+						width: "100%",
+						justifyContent: "center",
+						alignItems: "flex-end",
+					}}
+				>
+					<Button text={"Next"} onPress={submitForm} />
+				</View>
+			</KeyboardAvoidingView>
+		</SafeAreaView>
+	);
+};
+
+const styles = StyleSheet.create({
+	heroText: {
+		textAlign: "center",
+		fontSize: 23,
+		color: "#556772",
+		fontWeight: "600",
+		marginBottom: "20%",
+	},
+});
+
+export default SignUpView;
