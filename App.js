@@ -32,12 +32,12 @@ const Routes = () => {
 					{session ? (
 						<>
 							<Stack.Screen
-								name="Profile"
-								component={ProfileView}
-							></Stack.Screen>
-							<Stack.Screen
 								name="Home"
 								component={HomeView}
+							></Stack.Screen>
+							<Stack.Screen
+								name="Profile"
+								component={ProfileView}
 							></Stack.Screen>
 						</>
 					) : (
