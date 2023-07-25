@@ -38,6 +38,9 @@ const SessionState = ({ children }) => {
 
 	const logOut = (callback) => {
 		AsyncStorage.clear(callback);
+		updateSessionState({
+			session: null,
+		});
 	};
 
 	const getSession = async () => {

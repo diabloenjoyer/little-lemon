@@ -18,7 +18,7 @@ import { useSession } from "../state/SessionState";
 
 import { MenuRowItem, MenuRowList } from "./MenuRowList";
 
-const SignUpView = ({ navigation }) => {
+const SignUpView = () => {
 	const [form, setForm] = useState({
 		firstName: "",
 		email: "",
@@ -34,7 +34,6 @@ const SignUpView = ({ navigation }) => {
 		if (form.email.length <= 0 || form.firstName.length <= 0) return;
 
 		registerNewUser(form);
-		navigation.navigate("Profile");
 	};
 
 	return (
@@ -94,7 +93,11 @@ const SignUpView = ({ navigation }) => {
 						alignItems: "flex-end",
 					}}
 				>
-					<Button text={"Next"} onPress={submitForm} />
+					<Button
+						text={"Next"}
+						onPress={submitForm}
+						disabled={!isValidEmail(form?.email)}
+					/>
 				</View>
 			</KeyboardAvoidingView>
 		</SafeAreaView>

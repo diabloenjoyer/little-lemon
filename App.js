@@ -1,3 +1,5 @@
+import { useSession } from "./state/SessionState";
+
 import { Text } from "react-native";
 import { StatusBar } from "expo-status-bar";
 
@@ -6,10 +8,9 @@ import { createStackNavigator } from "@react-navigation/stack";
 
 import SignUpView from "./components/SignUpView";
 import ProfileView from "./components/ProfileView";
-
-import { useSession } from "./state/SessionState";
-
+import HomeView from "./components/HomeView";
 import SessionState from "./state/SessionState";
+
 const Stack = createStackNavigator();
 
 export default function App() {
@@ -27,21 +28,24 @@ const Routes = () => {
 		<NavigationContainer>
 			<StatusBar style="auto" />
 			{!isInitialLoading && (
-				<Stack.Navigator
-					screenOptions={{ headerShown: false }}
-					initialRouteName={!session ? "Get Started" : "Profile"}
-				>
-					{!session && (
+				<Stack.Navigator screenOptions={{ headerShown: false }}>
+					{session ? (
+						<>
+							<Stack.Screen
+								name="Profile"
+								component={ProfileView}
+							></Stack.Screen>
+							<Stack.Screen
+								name="Home"
+								component={HomeView}
+							></Stack.Screen>
+						</>
+					) : (
 						<Stack.Screen
 							name="Get Started"
 							component={SignUpView}
 						></Stack.Screen>
 					)}
-
-					<Stack.Screen
-						name="Profile"
-						component={ProfileView}
-					></Stack.Screen>
 				</Stack.Navigator>
 			)}
 		</NavigationContainer>
