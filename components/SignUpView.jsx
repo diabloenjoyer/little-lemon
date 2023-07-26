@@ -7,6 +7,7 @@ import {
 	KeyboardAvoidingView,
 	Platform,
 	SafeAreaView,
+	Image,
 } from "react-native";
 
 import Header from "./Header";
@@ -51,7 +52,21 @@ const SignUpView = () => {
 						paddingHorizontal: 20,
 					}}
 				>
-					<Text style={styles.heroText}>Let us get to know you</Text>
+					<Image
+						source={require("../assets/logo_big.png")}
+						style={{
+							width: "60%",
+							height: "60%",
+							marginHorizontal: "auto",
+							alignSelf: "center",
+						}}
+						resizeMode="contain"
+					></Image>
+					<View>
+						<Text style={styles.heroText}>
+							Let us get to know you
+						</Text>
+					</View>
 					<MenuRowList>
 						<MenuRowItem
 							underline
@@ -110,7 +125,7 @@ const styles = StyleSheet.create({
 		fontSize: 23,
 		color: "#556772",
 		fontWeight: "600",
-		marginBottom: "20%",
+		marginBottom: "15%",
 	},
 });
 
