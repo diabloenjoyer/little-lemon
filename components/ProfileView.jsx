@@ -16,6 +16,7 @@ import Button from "./Button";
 import Header from "./Header";
 import Input from "./Input";
 import { MenuRowList, MenuRowItem, MenuRowSwitch } from "./MenuRowList";
+import ProfileImage from "./ProfileImage";
 
 import { useSession } from "../state/SessionState";
 import { isUSPhoneNumber, isValidEmail } from "../utils/validate";
@@ -85,63 +86,24 @@ const Profile = () => {
 							Personal information
 						</Text>
 
-						<Pressable
-							style={styles.avatarContainer}
-							onPress={handleProfileImageUpdate}
-						>
-							{form?.imageUrl ? (
-								<Image
-									resizeMode="cover"
-									style={styles.profileImage}
-									source={{ uri: form?.imageUrl }}
-								/>
-							) : (
+						<View style={styles.avatarContainer}>
+							<ProfileImage
+								imageUrl={form?.imageUrl}
+								onPress={handleProfileImageUpdate}
+								style={styles.profileImage}
+								fontSize={30}
+							>
 								<View
-									style={{
-										backgroundColor: "lightgray",
-										position: "relative",
-										...styles.profileImage,
-									}}
+									style={
+										styles.imageUpdateButtonTextContainer
+									}
 								>
-									<View
-										style={{
-											alignItems: "center",
-											justifyContent: "center",
-											flexDirection: "row",
-											flex: 1,
-										}}
-									>
-										<Text style={{ fontSize: 30 }}>
-											{session?.firstName?.[0]?.toUpperCase()}
-										</Text>
-										<Text style={{ fontSize: 30 }}>
-											{session?.familyName?.[0]?.toUpperCase()}
-										</Text>
-									</View>
-									<View
-										style={{
-											width: "100%",
-											paddingBottom: 10,
-											bottom: 0,
-											fontSize: 12,
-											position: "absolute",
-											borderBottomRightRadius: 1,
-										}}
-									>
-										<Text
-											style={{
-												width: "100%",
-												textAlign: "center",
-												fontSize: 12,
-												color: "#333",
-											}}
-										>
-											Change
-										</Text>
-									</View>
+									<Text style={styles.imageUpdateButtonText}>
+										Change
+									</Text>
 								</View>
-							)}
-						</Pressable>
+							</ProfileImage>
+						</View>
 
 						<MenuRowList>
 							<MenuRowItem
@@ -292,17 +254,14 @@ const styles = StyleSheet.create({
 		flex: 1,
 		justifyContent: "center",
 		paddingHorizontal: 20,
+		marginTop: 20,
 	},
 	avatarContainer: {
 		width: "100%",
 		alignItems: "center",
 		marginBottom: 20,
 	},
-	profileImage: {
-		width: 100,
-		height: 100,
-		borderRadius: 999,
-	},
+	profileImage: { backgroundColor: "lightgray" },
 	rowInput: {
 		color: "#000000",
 	},
@@ -317,6 +276,20 @@ const styles = StyleSheet.create({
 	tabRightBtn: {
 		marginLeft: "auto",
 		width: "75%",
+	},
+	imageUpdateButtonTextContainer: {
+		width: "100%",
+		paddingBottom: 10,
+		bottom: 0,
+		fontSize: 12,
+		position: "absolute",
+		borderBottomRightRadius: 1,
+	},
+	imageUpdateButtonText: {
+		width: "100%",
+		textAlign: "center",
+		fontSize: 12,
+		color: "#333",
 	},
 });
 
