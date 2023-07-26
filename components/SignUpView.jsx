@@ -67,7 +67,7 @@ const SignUpView = () => {
 							Let us get to know you
 						</Text>
 					</View>
-					<MenuRowList>
+					<MenuRowList style={styles.section}>
 						<MenuRowItem
 							underline
 							leftChild={
@@ -126,6 +126,9 @@ const styles = StyleSheet.create({
 		color: "#556772",
 		fontWeight: "600",
 		marginBottom: "15%",
+	},
+	section: {
+		marginBottom: 30,
 	},
 });
 

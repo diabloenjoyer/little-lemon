@@ -105,7 +105,7 @@ const Profile = () => {
 							</ProfileImage>
 						</View>
 
-						<MenuRowList>
+						<MenuRowList style={styles.section}>
 							<MenuRowItem
 								style={styles.rowInput}
 								underline
@@ -174,7 +174,7 @@ const Profile = () => {
 
 						<Text style={styles.sectionHeadText}>Preferences</Text>
 
-						<MenuRowList>
+						<MenuRowList style={styles.section}>
 							<MenuRowSwitch
 								underline
 								text={"Order statuses"}
@@ -290,6 +290,9 @@ const styles = StyleSheet.create({
 		textAlign: "center",
 		fontSize: 12,
 		color: "#333",
+	},
+	section: {
+		marginBottom: 30,
 	},
 });
 

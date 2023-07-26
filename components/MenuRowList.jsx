@@ -2,8 +2,8 @@ import React from "react";
 import { View, StyleSheet, Text } from "react-native";
 import { Switch } from "react-native";
 
-export const MenuRowList = ({ children }) => {
-	return <View style={menuRowListStyle.container}>{children}</View>;
+export const MenuRowList = ({ children, style }) => {
+	return <View style={[menuRowListStyle.container, style]}>{children}</View>;
 };
 
 export const MenuRowItem = ({ leftChild, rightChild, underline = false }) => {
@@ -46,7 +46,6 @@ const menuRowListStyle = StyleSheet.create({
 		borderRadius: 10,
 		backgroundColor: "white",
 		paddingLeft: 16,
-		marginBottom: 30,
 	},
 });
 
