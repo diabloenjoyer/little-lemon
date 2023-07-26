@@ -1,5 +1,5 @@
-import useSWR from "swr";
-import { fetcher } from "../utils/fetcher";
+import useMenu from "../hooks/useMenu";
+import { capitalizeStr } from "../utils/strings";
 
 import {
 	View,
@@ -19,12 +19,12 @@ import { API_ENDPOINTS, COLORS, brandFont } from "../utils/config";
 import { Pressable } from "react-native";
 
 const HomeView = () => {
-	// const { data, error, isLoading } = useSWR(API_ENDPOINTS.MENU, fetcher);
+	const { menu, isLoading } = useMenu();
 
-	// if (error) return <Text>Something went wrong</Text>;
-
-	// if (isLoading) return <Text>Loading...</Text>;
-	// console.log(data);
+	if (isLoading || !menu) return <Text>Loading menu...</Text>;
+	const categories = Array.from(
+		new Set(menu.map((item) => capitalizeStr(item?.category)))
+	);
 
 	return (
 		<SafeAreaView>
@@ -34,19 +34,83 @@ const HomeView = () => {
 				style={{ height: "100%" }}
 			>
 				<HomeBanner />
-				<CategoryList />
-				{/* <MenuList menuData={data} /> */}
+				<CategoryList categories={categories} />
+				<MenuList menuData={menu} />
 			</ScrollView>
 		</SafeAreaView>
 	);
 };
 
 const MenuList = ({ menuData }) => {
-	return <View></View>;
+	return (
+		<View style={{ marginTop: 20, marginBottom: 60 }}>
+			<FlatList
+				data={menuData}
+				keyExtractor={(item, index) => index}
+				renderItem={({ item }) => <MenuItem {...item} />}
+			></FlatList>
+		</View>
+	);
 };
 
 const MenuItem = ({ name, price, description, image, category }) => {
-	return <View></View>;
+	return (
+		<Pressable
+			onPress={() => {
+				console.log(`${name} chosen for ${price}`);
+			}}
+			style={{
+				flexDirection: "row",
+				justifyContent: "space-between",
+				alignItems: "center",
+				paddingVertical: 20,
+				marginHorizontal: 20,
+				borderBottomColor: "rgba(84,84,88,0.25)",
+				borderBottomWidth: 0.33,
+			}}
+		>
+			<View style={{ maxWidth: "68%" }}>
+				<Text
+					style={{
+						fontSize: 16,
+						color: "black",
+						fontWeight: "600",
+						marginBottom: 13,
+					}}
+				>
+					{name}
+				</Text>
+				<Text
+					numberOfLines={2}
+					style={{
+						color: COLORS.brand.green,
+						fontFamily: brandFont(),
+					}}
+				>
+					{description}
+				</Text>
+				<Text
+					style={{
+						marginTop: 20,
+						fontSize: 20,
+						color: COLORS.brand.green,
+						fontFamily: brandFont(),
+					}}
+				>
+					${price}
+				</Text>
+			</View>
+			<View style={{ marginLeft: "auto" }}>
+				<Image
+					resizeMode="cover"
+					style={{ height: 100, width: 100, borderRadius: 5 }}
+					source={{
+						uri: image ? API_ENDPOINTS.MENU_IMAGE(image) : null,
+					}}
+				></Image>
+			</View>
+		</Pressable>
+	);
 };
 
 const HomeBanner = () => {
@@ -87,9 +151,7 @@ const HomeBanner = () => {
 
 const SearchBar = () => {};
 
-const CategoryList = () => {
-	const categories = ["Starters", "Mains", "Desserts", "Drinks"];
-
+const CategoryList = ({ categories }) => {
 	const CategoryItem = ({ category, onPress, selectedCategories }) => {
 		return (
 			<Pressable
