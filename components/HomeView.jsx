@@ -1,6 +1,6 @@
-import useMenu from "../hooks/useMenu";
-import { capitalizeStr } from "../utils/strings";
+import { useMenu } from "../state/MenuState";
 
+import { capitalizeStr } from "../utils/strings";
 import {
 	View,
 	Text,
@@ -10,6 +10,7 @@ import {
 	ScrollView,
 	FlatList,
 } from "react-native";
+import * as Haptics from "expo-haptics";
 
 import Header from "./Header";
 import Input from "./Input";
@@ -19,12 +20,9 @@ import { API_ENDPOINTS, COLORS, brandFont } from "../utils/config";
 import { Pressable } from "react-native";
 
 const HomeView = () => {
-	const { menu, isLoading } = useMenu();
+	const { menu, isLoading, categories } = useMenu();
 
 	if (isLoading || !menu) return <Text>Loading menu...</Text>;
-	const categories = Array.from(
-		new Set(menu.map((item) => capitalizeStr(item?.category)))
-	);
 
 	return (
 		<SafeAreaView>
@@ -102,7 +100,7 @@ const MenuItem = ({ name, price, description, image, category }) => {
 			</View>
 			<View style={{ marginLeft: "auto" }}>
 				<Image
-					resizeMode="cover"
+					resizeMode="stretch"
 					style={{ height: 100, width: 100, borderRadius: 5 }}
 					source={{
 						uri: image ? API_ENDPOINTS.MENU_IMAGE(image) : null,
@@ -114,6 +112,7 @@ const MenuItem = ({ name, price, description, image, category }) => {
 };
 
 const HomeBanner = () => {
+	const { query, setQuery } = useMenu();
 	return (
 		<View style={styles.container}>
 			<Text style={styles.heroHeading}>Little Lemon</Text>
@@ -137,10 +136,13 @@ const HomeBanner = () => {
 
 			<MenuRowList style={{ marginTop: 20 }}>
 				<MenuRowItem
+					style={{ paddingRight: 10 }}
 					leftChild={
 						<Input
+							value={query}
+							onValueChange={setQuery}
 							placeholder={"Search dishes"}
-							clearButtonMode="while-editing"
+							clearButtonMode="always"
 						/>
 					}
 				/>
@@ -149,16 +151,33 @@ const HomeBanner = () => {
 	);
 };
 
-const SearchBar = () => {};
-
 const CategoryList = ({ categories }) => {
-	const CategoryItem = ({ category, onPress, selectedCategories }) => {
+	const { selectedCategories, onCategoryPress } = useMenu();
+
+	const CategoryItem = ({ category, onPress, isSelected, style }) => {
 		return (
 			<Pressable
-				onPress={onPress}
-				style={[styles.categoryItem, styles.categortyItemNotSelected]}
+				onPress={() => {
+					Haptics.selectionAsync();
+					onPress(category);
+				}}
+				style={[
+					styles.categoryItem,
+					isSelected
+						? styles.categoryItemSelected
+						: styles.categortyItemNotSelected,
+					style,
+				]}
 			>
-				<Text style={styles.categoryItemText}>{category}</Text>
+				<Text
+					style={
+						isSelected
+							? styles.categoryItemTextSelected
+							: styles.categoryItemText
+					}
+				>
+					{category}
+				</Text>
 			</Pressable>
 		);
 	};
@@ -167,11 +186,23 @@ const CategoryList = ({ categories }) => {
 		<View style={styles.categoryListContainer}>
 			<Text style={styles.categoryListHeading}>Order for delivery</Text>
 			<FlatList
+				showsHorizontalScrollIndicator={false}
 				style={styles.categoryList}
 				horizontal
 				data={categories}
 				keyExtractor={({ item }) => item}
-				renderItem={({ item }) => <CategoryItem category={item} />}
+				renderItem={({ item, index }) => (
+					<CategoryItem
+						style={
+							index === categories.length - 1
+								? { marginRight: 40 }
+								: null
+						}
+						category={item}
+						onPress={onCategoryPress}
+						isSelected={selectedCategories?.includes(item)}
+					/>
+				)}
 			></FlatList>
 		</View>
 	);
@@ -222,7 +253,7 @@ const styles = StyleSheet.create({
 		fontSize: 23,
 	},
 	categoryList: {
-		paddingHorizontal: 20,
+		paddingLeft: 20,
 		gap: 20,
 	},
 	categoryItem: {
@@ -235,11 +266,16 @@ const styles = StyleSheet.create({
 		fontWeight: "600",
 		color: COLORS.brand.green,
 	},
+	categoryItemTextSelected: {
+		fontSize: 14,
+		fontWeight: "600",
+		color: COLORS.brand.lightHighlight,
+	},
 	categortyItemNotSelected: {
 		backgroundColor: "rgba(179,179,179,0.2)",
 	},
 	categoryItemSelected: {
-		backgroundColor: "rgba(17,17,17,0.2)",
+		backgroundColor: COLORS.brand.green,
 	},
 });
 

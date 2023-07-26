@@ -30,3 +30,12 @@ export const brandFont = (textType = "default") => {
 			return FONTS.KARLA;
 	}
 };
+
+export const MENU_CATEGORIES = [
+	"Starters",
+	"Desserts",
+	"Mains",
+	"Drinks",
+	"Chef's specials",
+	"Sauces",
+];
