@@ -1,6 +1,7 @@
 import { useSession } from "./state/SessionState";
+import useFonts from "./hooks/useFont";
 
-import { Text } from "react-native";
+import { View } from "react-native";
 import { StatusBar } from "expo-status-bar";
 
 import { NavigationContainer } from "@react-navigation/native";
@@ -14,16 +15,21 @@ import SessionState from "./state/SessionState";
 const Stack = createStackNavigator();
 
 export default function App() {
+	const { fontsLoaded, onLayoutRootView } = useFonts();
+
+	if (!fontsLoaded) return null;
+
 	return (
-		<SessionState>
-			<Routes />
-		</SessionState>
+		<View onLayout={onLayoutRootView} style={{ flex: 1 }}>
+			<SessionState>
+				<Routes />
+			</SessionState>
+		</View>
 	);
 }
 
 const Routes = () => {
 	const { session, isInitialLoading } = useSession();
-
 	return (
 		<NavigationContainer>
 			<StatusBar style="auto" />
