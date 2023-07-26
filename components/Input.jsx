@@ -10,12 +10,13 @@ const Input = ({
 	autoComplete = "off",
 	clearButtonMode = false,
 	clearTextOnFocus = false,
+	style,
 }) => {
 	return (
 		<TextInput
 			clearTextOnFocus={clearTextOnFocus}
 			clearButtonMode={clearButtonMode}
-			style={styles.input}
+			style={[styles.input, style]}
 			placeholder={placeholder}
 			value={value}
 			onChangeText={onValueChange}

@@ -6,7 +6,12 @@ export const MenuRowList = ({ children, style }) => {
 	return <View style={[menuRowListStyle.container, style]}>{children}</View>;
 };
 
-export const MenuRowItem = ({ leftChild, rightChild, underline = false }) => {
+export const MenuRowItem = ({
+	leftChild,
+	rightChild,
+	underline = false,
+	style,
+}) => {
 	return (
 		<View
 			style={[
@@ -16,6 +21,7 @@ export const MenuRowItem = ({ leftChild, rightChild, underline = false }) => {
 							borderBottomWidth: 0.33,
 					  }
 					: null,
+				style,
 			]}
 		>
 			{leftChild}
