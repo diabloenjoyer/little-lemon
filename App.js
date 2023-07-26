@@ -11,6 +11,7 @@ import SignUpView from "./components/SignUpView";
 import ProfileView from "./components/ProfileView";
 import HomeView from "./components/HomeView";
 import SessionState from "./state/SessionState";
+import MenuState from "./state/MenuState";
 
 const Stack = createStackNavigator();
 
@@ -22,7 +23,9 @@ export default function App() {
 	return (
 		<View onLayout={onLayoutRootView} style={{ flex: 1 }}>
 			<SessionState>
-				<Routes />
+				<MenuState>
+					<Routes />
+				</MenuState>
 			</SessionState>
 		</View>
 	);
