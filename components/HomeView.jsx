@@ -1,6 +1,7 @@
 import { useMenu } from "../state/MenuState";
+import { useSession } from "../state/SessionState";
+import { useOrder } from "../state/OrderState";
 
-import { capitalizeStr } from "../utils/strings";
 import {
 	View,
 	Text,
@@ -14,13 +15,25 @@ import * as Haptics from "expo-haptics";
 
 import Header from "./Header";
 import Input from "./Input";
+import Button from "./Button";
 import { MenuRowList, MenuRowItem } from "./MenuRowList";
 
-import { API_ENDPOINTS, COLORS, brandFont } from "../utils/config";
+import {
+	API_ENDPOINTS,
+	COLORS,
+	ORDER_STATES,
+	brandFont,
+} from "../utils/config";
 import { Pressable } from "react-native";
 
-const HomeView = () => {
+const HomeView = ({ navigation }) => {
 	const { menu, isLoading, categories } = useMenu();
+	const {
+		order,
+		getTotalOrderPrice,
+		getTotalSelectedProductQty,
+		confirmOrder,
+	} = useOrder();
 
 	if (isLoading || !menu) return <Text>Loading menu...</Text>;
 
@@ -35,13 +48,46 @@ const HomeView = () => {
 				<CategoryList categories={categories} />
 				<MenuList menuData={menu} />
 			</ScrollView>
+			<View
+				style={{
+					position: "fixed",
+					bottom: "13%",
+					paddingHorizontal: 20,
+				}}
+			>
+				{order && order?.products?.length > 0 && (
+					<Button
+						onPress={() => {
+							if (
+								order.state ===
+								(ORDER_STATES.COOKING || ORDER_STATES.DELIVERED)
+							)
+								confirmOrder();
+							navigation?.navigate("Order");
+						}}
+						text={
+							order?.state === ORDER_STATES.PENDING
+								? `${getTotalSelectedProductQty()} products for $${getTotalOrderPrice().toFixed(
+										2
+								  )}`
+								: `Press to see your order`
+						}
+					></Button>
+				)}
+			</View>
 		</SafeAreaView>
 	);
 };
 
 const MenuList = ({ menuData }) => {
+	const { order } = useOrder();
 	return (
-		<View style={{ marginTop: 20, marginBottom: 60 }}>
+		<View
+			style={[
+				{ marginTop: 20 },
+				order ? { marginBottom: 160 } : { marginBottom: 60 },
+			]}
+		>
 			<FlatList
 				data={menuData}
 				keyExtractor={(item, index) => index}
@@ -51,63 +97,97 @@ const MenuList = ({ menuData }) => {
 	);
 };
 
-const MenuItem = ({ name, price, description, image, category }) => {
+const MenuItem = ({ id, name, price, description, image, category }) => {
+	const { addItemToOrder, order, getSelectedProducts, removeItemFromOrder } =
+		useOrder();
+
+	const selectedProduct = getSelectedProducts()?.filter(
+		(product) => product.id === id
+	);
+
+	const handleAdd = () => {
+		Haptics.selectionAsync();
+		addItemToOrder({
+			id,
+			name,
+			price,
+			description,
+			image,
+			category,
+		});
+	};
+
+	const handleRemove = () => {
+		Haptics.selectionAsync();
+		removeItemFromOrder(selectedProduct?.[0]?.id);
+	};
+
+	const MenuItemOrderButton = ({ text, onPress, style }) => {
+		return (
+			<Pressable
+				onPress={onPress}
+				style={[styles.menuItemOrderButtonContainer, style]}
+			>
+				<Text style={styles.menuOrderButtonText}>{text}</Text>
+			</Pressable>
+		);
+	};
+
 	return (
-		<Pressable
-			onPress={() => {
-				console.log(`${name} chosen for ${price}`);
-			}}
-			style={{
-				flexDirection: "row",
-				justifyContent: "space-between",
-				alignItems: "center",
-				paddingVertical: 20,
-				marginHorizontal: 20,
-				borderBottomColor: "rgba(84,84,88,0.25)",
-				borderBottomWidth: 0.33,
-			}}
-		>
-			<View style={{ maxWidth: "68%" }}>
-				<Text
-					style={{
-						fontSize: 16,
-						color: "black",
-						fontWeight: "600",
-						marginBottom: 13,
-					}}
-				>
-					{name}
-				</Text>
-				<Text
-					numberOfLines={2}
-					style={{
-						color: COLORS.brand.green,
-						fontFamily: brandFont(),
-					}}
-				>
-					{description}
-				</Text>
-				<Text
-					style={{
-						marginTop: 20,
-						fontSize: 20,
-						color: COLORS.brand.green,
-						fontFamily: brandFont(),
-					}}
-				>
-					${price}
-				</Text>
-			</View>
-			<View style={{ marginLeft: "auto" }}>
+		<View style={styles.menuItemContainer}>
+			<View>
 				<Image
 					resizeMode="stretch"
-					style={{ height: 100, width: 100, borderRadius: 5 }}
+					style={styles.menuItemImage}
 					source={{
 						uri: image ? API_ENDPOINTS.MENU_IMAGE(image) : null,
 					}}
 				></Image>
 			</View>
-		</Pressable>
+
+			<View style={styles.menuItemBodyWrapper}>
+				<Text style={styles.menuItemProductNameText}>{name}</Text>
+
+				<Text numberOfLines={2} style={styles.menuItemDescriptionText}>
+					{description}
+				</Text>
+
+				<View style={styles.menuItemBottomWrapper}>
+					<Text style={styles.menuItemPriceText}>${price}</Text>
+					{selectedProduct?.length > 0 ? (
+						<View style={styles.menuOrderButtonsWrapper}>
+							<MenuItemOrderButton
+								text={"-"}
+								onPress={handleRemove}
+							/>
+
+							<Text
+								style={{
+									minWidth: 40,
+									textAlign: "center",
+									fontFamily: brandFont(),
+									fontSize: 20,
+								}}
+							>
+								{selectedProduct?.[0]?.qty}
+							</Text>
+
+							<MenuItemOrderButton
+								text={"+"}
+								onPress={handleAdd}
+							/>
+						</View>
+					) : (
+						<View>
+							<MenuItemOrderButton
+								text={"Add"}
+								onPress={handleAdd}
+							/>
+						</View>
+					)}
+				</View>
+			</View>
+		</View>
 	);
 };
 
@@ -257,7 +337,8 @@ const styles = StyleSheet.create({
 		gap: 20,
 	},
 	categoryItem: {
-		padding: 8,
+		paddingVertical: 10,
+		paddingHorizontal: 14,
 		borderRadius: 12,
 		marginRight: 10,
 	},
@@ -272,11 +353,60 @@ const styles = StyleSheet.create({
 		color: COLORS.brand.lightHighlight,
 	},
 	categortyItemNotSelected: {
-		backgroundColor: "rgba(179,179,179,0.2)",
+		backgroundColor: COLORS.brand.neutralHighlight,
 	},
 	categoryItemSelected: {
 		backgroundColor: COLORS.brand.green,
 	},
+	menuItemContainer: {
+		flexDirection: "row",
+		justifyContent: "space-between",
+		alignItems: "center",
+		paddingVertical: 20,
+		marginHorizontal: 20,
+		borderBottomColor: "rgba(84,84,88,0.25)",
+		borderBottomWidth: 0.33,
+	},
+	menuItemOrderButtonContainer: {
+		paddingVertical: 10,
+		paddingHorizontal: 14,
+		borderRadius: 10,
+		backgroundColor: COLORS.brand.neutralHighlight,
+		alignItems: "center",
+		justifyContent: "center",
+	},
+	menuOrderButtonsWrapper: {
+		flexDirection: "row",
+		alignItems: "center",
+	},
+	menuOrderButtonText: {
+		fontWeight: "600",
+		color: COLORS.brand.green,
+		fontSize: 16,
+	},
+	menuItemPriceText: {
+		fontSize: 23,
+		color: COLORS.brand.green,
+		fontFamily: brandFont(),
+	},
+	menuItemBottomWrapper: {
+		marginTop: 20,
+		flexDirection: "row",
+		justifyContent: "space-between",
+		alignItems: "center",
+	},
+	menuItemDescriptionText: {
+		color: COLORS.brand.green,
+		fontFamily: brandFont(),
+	},
+	menuItemProductNameText: {
+		fontSize: 16,
+		color: "black",
+		fontWeight: "600",
+		marginBottom: 13,
+	},
+	menuItemImage: { height: 100, width: 100, borderRadius: 5 },
+	menuItemBodyWrapper: { marginLeft: 16, flex: 1 },
 });
 
 export default HomeView;

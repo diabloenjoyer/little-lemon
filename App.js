@@ -10,8 +10,11 @@ import { createStackNavigator } from "@react-navigation/stack";
 import SignUpView from "./components/SignUpView";
 import ProfileView from "./components/ProfileView";
 import HomeView from "./components/HomeView";
+import OrderView from "./components/OrderView";
+
 import SessionState from "./state/SessionState";
 import MenuState from "./state/MenuState";
+import OrderState from "./state/OrderState";
 
 const Stack = createStackNavigator();
 
@@ -24,7 +27,9 @@ export default function App() {
 		<View onLayout={onLayoutRootView} style={{ flex: 1 }}>
 			<SessionState>
 				<MenuState>
-					<Routes />
+					<OrderState>
+						<Routes />
+					</OrderState>
 				</MenuState>
 			</SessionState>
 		</View>
@@ -47,6 +52,10 @@ const Routes = () => {
 							<Stack.Screen
 								name="Profile"
 								component={ProfileView}
+							></Stack.Screen>
+							<Stack.Screen
+								name="Order"
+								component={OrderView}
 							></Stack.Screen>
 						</>
 					) : (

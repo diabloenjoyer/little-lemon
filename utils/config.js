@@ -13,6 +13,7 @@ export const COLORS = {
 		coral: "#EE8872",
 		lightHighlight: "#EDEFEE",
 		darkHighlight: "#333333",
+		neutralHighlight: "rgba(179,179,179,0.2)",
 	},
 };
 
@@ -39,3 +40,9 @@ export const MENU_CATEGORIES = [
 	"Chef's specials",
 	"Sauces",
 ];
+
+export const ORDER_STATES = {
+	PENDING: 1,
+	COOKING: 2,
+	DELIVERED: 3,
+};
