@@ -1,5 +1,4 @@
 import { useMenu } from "../state/MenuState";
-import { useSession } from "../state/SessionState";
 import { useOrder } from "../state/OrderState";
 
 import {
@@ -10,6 +9,7 @@ import {
 	StyleSheet,
 	ScrollView,
 	FlatList,
+	Pressable,
 } from "react-native";
 import * as Haptics from "expo-haptics";
 
@@ -24,18 +24,21 @@ import {
 	ORDER_STATES,
 	brandFont,
 } from "../utils/config";
-import { Pressable } from "react-native";
 
 const HomeView = ({ navigation }) => {
 	const { menu, isLoading, categories } = useMenu();
-	const {
-		order,
-		getTotalOrderPrice,
-		getTotalSelectedProductQty,
-		confirmOrder,
-	} = useOrder();
+	const { order, confirmOrder } = useOrder();
 
 	if (isLoading || !menu) return <Text>Loading menu...</Text>;
+
+	const handleOrderButtonPress = () => {
+		const isConfirmedOrder =
+			order.state == ORDER_STATES.COOKING ||
+			order.state == ORDER_STATES.DELIVERED;
+
+		if (!isConfirmedOrder) confirmOrder();
+		navigation.navigate("Order");
+	};
 
 	return (
 		<SafeAreaView>
@@ -48,34 +51,29 @@ const HomeView = ({ navigation }) => {
 				<CategoryList categories={categories} />
 				<MenuList menuData={menu} />
 			</ScrollView>
-			<View
-				style={{
-					position: "fixed",
-					bottom: "13%",
-					paddingHorizontal: 20,
-				}}
-			>
-				{order && order?.products?.length > 0 && (
-					<Button
-						onPress={() => {
-							if (
-								order.state ===
-								(ORDER_STATES.COOKING || ORDER_STATES.DELIVERED)
-							)
-								confirmOrder();
-							navigation?.navigate("Order");
-						}}
-						text={
-							order?.state === ORDER_STATES.PENDING
-								? `${getTotalSelectedProductQty()} products for $${getTotalOrderPrice().toFixed(
-										2
-								  )}`
-								: `Press to see your order`
-						}
-					></Button>
-				)}
-			</View>
+
+			<OrderButton onPress={handleOrderButtonPress} />
 		</SafeAreaView>
+	);
+};
+
+const OrderButton = ({ onPress }) => {
+	const { order, getTotalSelectedProductQty, getTotalOrderPrice } =
+		useOrder();
+
+	return (
+		<View style={styles.orderButtonContainer}>
+			{order && order?.products?.length > 0 && (
+				<Button
+					onPress={onPress}
+					text={
+						order.state === ORDER_STATES.PENDING
+							? `${getTotalSelectedProductQty()} products for $${getTotalOrderPrice()}`
+							: `View order`
+					}
+				></Button>
+			)}
+		</View>
 	);
 };
 
@@ -84,21 +82,23 @@ const MenuList = ({ menuData }) => {
 	return (
 		<View
 			style={[
-				{ marginTop: 20 },
-				order ? { marginBottom: 160 } : { marginBottom: 60 },
+				styles.menuListTopMargin,
+				order.products.length >= 0
+					? styles.menuSpaceForOrderButton
+					: styles.menuDefaultBottomSpace,
 			]}
 		>
-			<FlatList
-				data={menuData}
-				keyExtractor={(item, index) => index}
-				renderItem={({ item }) => <MenuItem {...item} />}
-			></FlatList>
+			<View>
+				{menuData.map((item, _) => (
+					<MenuItem key={item.id} {...item} />
+				))}
+			</View>
 		</View>
 	);
 };
 
 const MenuItem = ({ id, name, price, description, image, category }) => {
-	const { addItemToOrder, order, getSelectedProducts, removeItemFromOrder } =
+	const { addItemToOrder, getSelectedProducts, removeItemFromOrder } =
 		useOrder();
 
 	const selectedProduct = getSelectedProducts()?.filter(
@@ -198,7 +198,7 @@ const HomeBanner = () => {
 			<Text style={styles.heroHeading}>Little Lemon</Text>
 
 			<View style={styles.heroTextContainer}>
-				<View style={{ maxWidth: "55%" }}>
+				<View style={styles.heroTextWrapper}>
 					<Text style={styles.restaurantLocationText}>Chicago</Text>
 					<Text style={styles.restaurantDescriptionText}>
 						We are family-owned Mediterranean restaurant, focused on
@@ -214,9 +214,9 @@ const HomeBanner = () => {
 				</View>
 			</View>
 
-			<MenuRowList style={{ marginTop: 20 }}>
+			<MenuRowList style={styles.customMenuRowListStyle}>
 				<MenuRowItem
-					style={{ paddingRight: 10 }}
+					style={styles.customMenuRowItemStyle}
 					leftChild={
 						<Input
 							value={query}
@@ -270,12 +270,12 @@ const CategoryList = ({ categories }) => {
 				style={styles.categoryList}
 				horizontal
 				data={categories}
-				keyExtractor={({ item }) => item}
+				keyExtractor={(item) => item}
 				renderItem={({ item, index }) => (
 					<CategoryItem
 						style={
 							index === categories.length - 1
-								? { marginRight: 40 }
+								? styles.marginOnLastCategory
 								: null
 						}
 						category={item}
@@ -310,6 +310,7 @@ const styles = StyleSheet.create({
 		height: 175,
 	},
 	heroImageContainer: { marginLeft: "auto" },
+	heroTextWrapper: { maxWidth: "55%" },
 	restaurantLocationText: {
 		fontFamily: brandFont("heading"),
 		fontSize: 35,
@@ -407,6 +408,17 @@ const styles = StyleSheet.create({
 	},
 	menuItemImage: { height: 100, width: 100, borderRadius: 5 },
 	menuItemBodyWrapper: { marginLeft: 16, flex: 1 },
+	menuSpaceForOrderButton: { marginBottom: 160 },
+	menuDefaultBottomSpace: { marginBottom: 20 },
+	menuListTopMargin: { marginBottom: 20 },
+	orderButtonContainer: {
+		position: "fixed",
+		bottom: "13%",
+		paddingHorizontal: 20,
+	},
+	marginOnLastCategory: { marginRight: 40 },
+	customMenuRowItemStyle: { paddingRight: 10 },
+	customMenuRowListStyle: { marginTop: 20 },
 });
 
 export default HomeView;

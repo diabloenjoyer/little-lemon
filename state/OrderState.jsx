@@ -3,19 +3,17 @@ import { createContext, useContext, useState, useEffect } from "react";
 import { Order, Product } from "../models/order";
 import { ORDER_STATES } from "../utils/config";
 
+import { getTimeDifferenceInMinutes } from "../utils/time";
+
 const orderContext = createContext(undefined);
 
 const OrderState = ({ children }) => {
-	const [order, setOrder] = useState(null);
+	const [order, setOrder] = useState(
+		new Order({ state: ORDER_STATES.PENDING })
+	);
 
 	const addItemToOrder = (itemObj) => {
 		setOrder((currentState) => {
-			if (!currentState) {
-				const newOrder = new Order({ state: ORDER_STATES.PENDING });
-				newOrder.products.push(new Product(itemObj));
-				return newOrder;
-			}
-
 			const itemIdxInOrder = currentState.products.findIndex(
 				(item) => item.id === itemObj.id
 			);
@@ -32,7 +30,7 @@ const OrderState = ({ children }) => {
 	};
 
 	const removeItemFromOrder = (itemId) => {
-		if (!order?.products) return;
+		if (order.products.length <= 0) return;
 
 		setOrder((currentState) => {
 			const itemIdx = currentState.products.findIndex(
@@ -57,36 +55,38 @@ const OrderState = ({ children }) => {
 	};
 
 	const getTotalOrderPrice = () =>
-		order?.products?.reduce((acc, cv) => (acc += cv.price * cv.qty), 0);
+		order.products
+			.reduce((acc, cv) => (acc += cv.price * cv.qty), 0)
+			?.toFixed(2);
 
 	const getSelectedProducts = () =>
-		order?.products?.map((product) => ({
+		order.products.map((product) => ({
 			qty: product.qty,
 			id: product.id,
 		}));
 
 	const getTotalSelectedProductQty = () =>
-		order?.products?.reduce((acc, cv) => (acc += cv.qty), 0);
-
-	// useEffect(() => {
-	// 	console.log(order);
-	// });
+		order.products.reduce((acc, cv) => (acc += cv.qty), 0);
 
 	const confirmOrder = () => {
-		if (!order) return;
+		if (order.products.length <= 0) return;
 		const now = new Date();
 
 		// Add 60 minutes to the current time
 		const futureTime = new Date(now);
-		futureTime.setMinutes(now.getMinutes() + 45);
+		futureTime.setMinutes(now.getMinutes() + 35);
 
-		// Set new order state to cooking
+		// Update order state
 		// Assign time to order
 		setOrder((currentState) => ({
 			...currentState,
-			state: "cooking",
+			state: ORDER_STATES.COOKING,
 			timeUntilReadyForDelivery: futureTime,
 		}));
+	};
+
+	const resetOrder = () => {
+		setOrder(new Order({ state: ORDER_STATES.PENDING }));
 	};
 
 	return (
@@ -99,6 +99,7 @@ const OrderState = ({ children }) => {
 				getSelectedProducts,
 				getTotalSelectedProductQty,
 				confirmOrder,
+				resetOrder,
 			}}
 		>
 			{children}

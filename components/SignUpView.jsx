@@ -40,26 +40,17 @@ const SignUpView = () => {
 	return (
 		<SafeAreaView style={{ flex: 1 }}>
 			<KeyboardAvoidingView
-				style={{ flex: 1, width: "100%" }}
+				style={styles.keyboardAvoidingViewContainer}
 				behavior={Platform.OS === "ios" ? "padding" : "height"}
 			>
 				<Header />
 				<ScrollView
 					keyboardDismissMode="interactive"
-					contentContainerStyle={{
-						flexGrow: 1,
-						justifyContent: "flex-end",
-						paddingHorizontal: 20,
-					}}
+					contentContainerStyle={styles.scrollViewContainer}
 				>
 					<Image
 						source={require("../assets/logo_big.png")}
-						style={{
-							width: "60%",
-							height: "60%",
-							marginHorizontal: "auto",
-							alignSelf: "center",
-						}}
+						style={styles.littleLemonBigLogo}
 						resizeMode="contain"
 					></Image>
 					<View>
@@ -99,15 +90,7 @@ const SignUpView = () => {
 						/>
 					</MenuRowList>
 				</ScrollView>
-				<View
-					style={{
-						height: 100,
-						paddingHorizontal: 20,
-						width: "100%",
-						justifyContent: "center",
-						alignItems: "flex-end",
-					}}
-				>
+				<View style={styles.loginButtonContainer}>
 					<Button
 						text={"Next"}
 						onPress={submitForm}
@@ -130,6 +113,25 @@ const styles = StyleSheet.create({
 	section: {
 		marginBottom: 30,
 	},
+	loginButtonContainer: {
+		height: 100,
+		paddingHorizontal: 20,
+		width: "100%",
+		justifyContent: "center",
+		alignItems: "flex-end",
+	},
+	littleLemonBigLogo: {
+		width: "60%",
+		height: "60%",
+		marginHorizontal: "auto",
+		alignSelf: "center",
+	},
+	scrollViewContainer: {
+		flexGrow: 1,
+		justifyContent: "flex-end",
+		paddingHorizontal: 20,
+	},
+	keyboardAvoidingViewContainer: { flex: 1, width: "100%" },
 });
 
 export default SignUpView;

@@ -4,10 +4,8 @@ import {
 	Text,
 	SafeAreaView,
 	StyleSheet,
-	Image,
 	ScrollView,
 	KeyboardAvoidingView,
-	Pressable,
 	Alert,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
@@ -20,6 +18,7 @@ import ProfileImage from "./ProfileImage";
 
 import { useSession } from "../state/SessionState";
 import { isUSPhoneNumber, isValidEmail } from "../utils/validate";
+import { COLORS } from "../utils/config";
 
 const Profile = () => {
 	const { session, logOut, updateUser } = useSession();
@@ -171,6 +170,9 @@ const Profile = () => {
 								}
 							></MenuRowItem>
 						</MenuRowList>
+						<Text style={styles.alertText}>
+							Please fill all fields to save
+						</Text>
 
 						<Text style={styles.sectionHeadText}>Preferences</Text>
 
@@ -209,11 +211,11 @@ const Profile = () => {
 							/>
 						</MenuRowList>
 
-						<View>
+						<View style={styles.logOutButtonWrapper}>
 							<Button
 								text={"Log out"}
 								onPress={() => logOut()}
-								color="#F4CE14"
+								color={COLORS.brand.coral}
 							/>
 						</View>
 					</ScrollView>
@@ -292,8 +294,13 @@ const styles = StyleSheet.create({
 		color: "#333",
 	},
 	section: {
-		marginBottom: 30,
+		marginBottom: 10,
 	},
+	alertText: {
+		marginBottom: 20,
+		textAlign: "center",
+	},
+	logOutButtonWrapper: { marginBottom: 40 },
 });
 
 export default Profile;

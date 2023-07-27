@@ -16,11 +16,7 @@ export const MenuRowItem = ({
 		<View
 			style={[
 				menuRowItemStyle.container,
-				underline
-					? {
-							borderBottomWidth: 0.33,
-					  }
-					: null,
+				underline ? menuRowItemStyle.menuRowItemBorderWidth : null,
 				style,
 			]}
 		>
@@ -38,7 +34,7 @@ export const MenuRowSwitch = ({ value, onToggle, text, underline = false }) => {
 				<Text style={menuRowItemStyle.menuRowItemText}>{text}</Text>
 			}
 			rightChild={
-				<View style={{ marginRight: 10 }}>
+				<View style={menuRowItemStyle.switchContainer}>
 					<Switch value={value} onValueChange={onToggle} />
 				</View>
 			}
@@ -68,4 +64,6 @@ export const menuRowItemStyle = StyleSheet.create({
 		color: "#000",
 		fontSize: 17,
 	},
+	menuRowItemBorderWidth: { borderBottomWidth: 0.33 },
+	switchContainer: { marginRight: 10 },
 });

@@ -21,9 +21,9 @@ const Button = ({
 			style={[
 				styles.button,
 				type === "secondary"
-					? { backgroundColor: "transparent" }
+					? styles.buttonTransparent
 					: disabled
-					? { backgroundColor: DISABLED_COLOR }
+					? styles.buttonDisabledBg
 					: { backgroundColor: color },
 			]}
 		>
@@ -31,9 +31,9 @@ const Button = ({
 				style={[
 					styles.buttonText,
 					type === "secondary"
-						? { color: APPLE_BLUE }
+						? styles.buttonTextBlue
 						: disabled
-						? { color: getTextColor(DISABLED_COLOR) }
+						? styles.buttonTextDisabled
 						: { color: getTextColor(color) },
 				]}
 			>
@@ -59,6 +59,10 @@ const styles = StyleSheet.create({
 		textAlign: "center",
 		lineHeight: 22,
 	},
+	buttonDisabledBg: { backgroundColor: DISABLED_COLOR },
+	buttonTransparent: { backgroundColor: "transparent" },
+	buttonTextDisabled: { color: getTextColor(DISABLED_COLOR) },
+	buttonTextBlue: { color: APPLE_BLUE },
 });
 
 export default Button;

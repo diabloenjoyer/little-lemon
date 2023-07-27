@@ -1,5 +1,4 @@
-import { TextInput, View, StyleSheet, Pressable } from "react-native";
-import Icon from "react-native-ionicons";
+import { TextInput, StyleSheet } from "react-native";
 
 const Input = ({
 	placeholder,
@@ -8,7 +7,7 @@ const Input = ({
 	keyboardType = "default",
 	isSecure = false,
 	autoComplete = "off",
-	clearButtonMode = false,
+	clearButtonMode = "never",
 	clearTextOnFocus = false,
 	style,
 }) => {
