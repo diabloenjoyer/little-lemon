@@ -1,4 +1,4 @@
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 
 import { View, StyleSheet, Image, TouchableOpacity, Text } from "react-native";
 
@@ -9,10 +9,10 @@ import { Entypo } from "@expo/vector-icons";
 
 const Header = () => {
 	const navigator = useNavigation();
-
+	const route = useRoute();
 	return (
 		<View style={styles.header}>
-			{navigator.canGoBack() && (
+			{navigator.canGoBack() && route.name !== "Home" && (
 				<View style={styles.backButtonWrapper}>
 					<TouchableOpacity
 						onPress={() => navigator.goBack()}
@@ -33,12 +33,14 @@ const Header = () => {
 				resizeMode="stretch"
 				source={require("../assets/Logo.png")}
 			/>
-			<View style={styles.profileIconContainer}>
-				<ProfileImage
-					onPress={() => navigator.navigate("Profile")}
-					style={styles.profileImage}
-				/>
-			</View>
+			{route.name !== "Profile" && (
+				<View style={styles.profileIconContainer}>
+					<ProfileImage
+						onPress={() => navigator.navigate("Profile")}
+						style={styles.profileImage}
+					/>
+				</View>
+			)}
 		</View>
 	);
 };
@@ -74,7 +76,9 @@ const styles = StyleSheet.create({
 		height: 28,
 		borderRadius: 999,
 	},
-	backButtonWrapper: {},
+	backButtonWrapper: {
+		marginRight: "auto",
+	},
 	backButtonText: {},
 });
 export default Header;
